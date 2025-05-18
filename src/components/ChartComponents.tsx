@@ -12,7 +12,8 @@ import {
   ScatterChart,
   Scatter,
   AreaChart,
-  Area
+  Area,
+  ZAxis
 } from 'recharts';
 
 interface ChartTooltipProps {
@@ -25,7 +26,7 @@ interface ChartTooltipProps {
 export const ChartTooltip: React.FC<ChartTooltipProps> = ({ active, payload, label, formatter }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white p-4 border border-gray-200 shadow-sm rounded-lg">
+      <div className="bg-white p-4 border border-gray-200 shadow-sm rounded-lg transition-all duration-300 animate-fade-in">
         <p className="text-sm font-medium text-gray-700">{`${label}`}</p>
         {payload.map((entry, index) => {
           const value = formatter ? formatter(entry.value, entry.name) : entry.value;
@@ -67,7 +68,7 @@ export const CustomBarChart: React.FC<CustomBarChartProps> = ({
 }) => {
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
+      <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 20 }} className="animate-fade-in">
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
         <XAxis 
           dataKey={xAxisDataKey} 
@@ -89,15 +90,18 @@ export const CustomBarChart: React.FC<CustomBarChartProps> = ({
               formatter={(value, name) => valueFormatter(value)}
             />
           )} 
+          animationDuration={300}
         />
         <Legend wrapperStyle={{ paddingTop: 15 }} />
-        {bars.map((bar) => (
+        {bars.map((bar, index) => (
           <Bar 
             key={bar.dataKey} 
             dataKey={bar.dataKey} 
             name={bar.name} 
             fill={bar.fill} 
             radius={[4, 4, 0, 0]} 
+            animationDuration={500 + (index * 100)}
+            animationBegin={300 * index}
           />
         ))}
       </BarChart>
@@ -116,10 +120,25 @@ export const CustomScatterChart: React.FC<any> = ({
   xTickFormatter,
   yTickFormatter
 }) => {
+  // Group dots by their year and assign sizes based on aggregate count
+  const processedData = data.map(dot => {
+    if (dot.count) {
+      return {
+        ...dot,
+        z: dot.count * 30, // Size based on count for aggregate dots
+      };
+    }
+    
+    return {
+      ...dot,
+      z: dot.animated ? 100 : 80  // Normal dot size
+    };
+  });
+  
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }} onClick={onClick}>
-        <CartesianGrid strokeDasharray="3 3" />
+      <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }} onClick={onClick} className="animate-fade-in">
+        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
         <XAxis 
           type="number" 
           dataKey="x" 
@@ -140,19 +159,30 @@ export const CustomScatterChart: React.FC<any> = ({
           tickFormatter={yTickFormatter}
           tick={{ fontSize: 12, fill: '#6b7280' }}
         />
+        <ZAxis 
+          type="number" 
+          dataKey="z" 
+          range={[60, 120]} 
+        />
         <Tooltip 
           cursor={{ strokeDasharray: '3 3' }} 
           content={({ active, payload }) => {
             if (active && payload && payload.length) {
               const data = payload[0].payload;
               return (
-                <div className="bg-white p-3 border border-gray-200 shadow-sm rounded-lg">
+                <div className="bg-white p-3 border border-gray-200 shadow-sm rounded-lg animate-fade-in">
                   <p className="text-sm font-medium">{`Year: ${data.year || data.x}`}</p>
                   <p className="text-sm" style={{ color: data.fill }}>
                     {`Rate: ${data.displayRate || data.y}%`}
                   </p>
-                  {data.participant && (
+                  {data.label && (
+                    <p className="text-xs text-gray-600">{data.label}</p>
+                  )}
+                  {data.participant && !data.count && (
                     <p className="text-xs text-gray-500">{data.participant}</p>
+                  )}
+                  {data.count && (
+                    <p className="text-xs text-gray-500">{`Count: ${data.count}`}</p>
                   )}
                 </div>
               );
@@ -161,18 +191,23 @@ export const CustomScatterChart: React.FC<any> = ({
           }}
         />
         <Scatter 
-          data={data} 
+          data={processedData} 
           fill="#2563EB" 
           shape={(props) => {
-            const { cx, cy, fill } = props;
+            const { cx, cy, fill, z } = props;
+            // Adjust size based on z value (for aggregated dots)
+            const size = Math.max((z || 80) / 10, 6);
+            
             return (
               <circle 
                 cx={cx} 
                 cy={cy} 
-                r={6} 
+                r={size} 
                 strokeWidth={1}
                 stroke="#fff"
                 fill={fill || "#2563EB"} 
+                className="transition-all duration-300"
+                style={{ opacity: z > 90 ? 0.9 : 0.7 }}
               />
             );
           }}
@@ -194,6 +229,7 @@ export const CustomAreaChart: React.FC<any> = ({
       <AreaChart
         data={data}
         margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+        className="animate-fade-in"
       >
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
         <XAxis 
@@ -216,9 +252,10 @@ export const CustomAreaChart: React.FC<any> = ({
               formatter={(value, name) => valueFormatter(value)}
             />
           )}
+          animationDuration={300}
         />
         <Legend wrapperStyle={{ paddingTop: 15 }} />
-        {areas.map((area: any) => (
+        {areas.map((area: any, index: number) => (
           <Area
             key={area.dataKey}
             type="monotone"
@@ -228,6 +265,8 @@ export const CustomAreaChart: React.FC<any> = ({
             fill={area.fill}
             fillOpacity={0.3}
             activeDot={{ r: 6 }}
+            animationDuration={800}
+            animationBegin={300 * index}
           />
         ))}
       </AreaChart>

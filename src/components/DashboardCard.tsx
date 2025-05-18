@@ -1,22 +1,24 @@
 
 import React from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 interface DashboardCardProps {
   title: string;
   children: React.ReactNode;
   className?: string;
   action?: React.ReactNode;
+  titleClassName?: string;
 }
 
-const DashboardCard: React.FC<DashboardCardProps> = ({ title, children, className = '', action }) => {
+const DashboardCard = ({ title, children, className = "", action, titleClassName = "" }: DashboardCardProps) => {
   return (
-    <div className={`card-shadow p-5 ${className}`}>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="font-semibold text-gray-800">{title}</h2>
+    <Card className={`overflow-hidden shadow-sm border-gray-100 transition-all duration-300 hover:shadow-md ${className}`}>
+      <CardHeader className="flex flex-row items-center justify-between p-4 pb-2">
+        <CardTitle className={`text-lg font-medium ${titleClassName}`}>{title}</CardTitle>
         {action && <div>{action}</div>}
-      </div>
-      <div>{children}</div>
-    </div>
+      </CardHeader>
+      <CardContent className="p-4 pt-2">{children}</CardContent>
+    </Card>
   );
 };
 

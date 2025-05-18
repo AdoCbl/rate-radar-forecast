@@ -62,7 +62,8 @@ const DotPlot: React.FC<DotPlotProps> = ({ existingDots = [], onSave, readOnly =
         year,
         displayRate: rate.toFixed(2),
         fill: '#EC4899',
-        participant: 'Your Forecast'
+        participant: 'Your Forecast',
+        animated: true,
       };
       setUserDots([...userDots, newDot]);
     }
@@ -103,7 +104,7 @@ const DotPlot: React.FC<DotPlotProps> = ({ existingDots = [], onSave, readOnly =
 
   return (
     <div>
-      <div className="h-[350px]">
+      <div className="h-[350px] transition-all duration-500">
         <CustomScatterChart
           data={allDots}
           xDomain={[yearTicks[0] - 0.5, yearTicks[yearTicks.length - 1] + 0.5]}
@@ -118,17 +119,17 @@ const DotPlot: React.FC<DotPlotProps> = ({ existingDots = [], onSave, readOnly =
       
       {!readOnly && (
         <>
-          <div className="my-4">
+          <div className="my-4 animate-fade-in">
             <p className="text-sm font-medium text-gray-700 mb-2">Select reasoning (optional):</p>
             <div className="flex flex-wrap gap-2">
               {reasoningTags.map(tag => (
                 <button
                   key={tag}
                   onClick={() => handleTagSelection(tag)}
-                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                  className={`px-3 py-1 text-xs rounded-full transition-all duration-300 ${
                     selectedTags.includes(tag)
-                      ? 'bg-primary text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-sm transform scale-105'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105'
                   }`}
                 >
                   {tag}
@@ -141,13 +142,13 @@ const DotPlot: React.FC<DotPlotProps> = ({ existingDots = [], onSave, readOnly =
             <Button
               variant="outline"
               onClick={clearDots}
-              className="text-sm"
+              className="text-sm transition-all duration-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200"
             >
               Clear
             </Button>
             <Button
               onClick={handleSave}
-              className="text-sm bg-primary text-white hover:bg-primary/90"
+              className="text-sm bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-all duration-300 shadow-sm hover:shadow"
               disabled={userDots.length === 0}
             >
               Save Forecast
