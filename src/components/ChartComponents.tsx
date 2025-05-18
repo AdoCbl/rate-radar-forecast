@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { 
   ResponsiveContainer, 
@@ -139,19 +140,31 @@ export const CustomScatterChart: React.FC<CustomScatterChartProps> = ({
   xTickFormatter = (value: number) => value.toString(),
   yTickFormatter = (value: number) => `${value}%`
 }) => {
-  // Custom tooltip content renderer
-  const renderTooltip = ({ active, payload }: any) => {
+  // Custom tooltip content renderer with improved positioning
+  const renderTooltip = ({ active, payload, coordinate }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
+      // Determine if tooltip should appear on the left or right side of the dot
+      // to avoid blocking other dots or going off-screen
+      const isRightSide = coordinate?.x && coordinate.x > 250;
+      
       return (
-        <div className="bg-white p-3 border border-gray-200 shadow-sm rounded-lg animate-fade-in">
-          <p className="text-sm font-medium">{`Year: ${data.year === 2027 ? 'Long Run' : data.year}`}</p>
-          <p className="text-sm" style={{ color: data.fill }}>
+        <div 
+          className="bg-white p-2.5 border border-gray-200 shadow-sm rounded-lg animate-fade-in max-w-[150px]"
+          style={{
+            position: 'absolute',
+            left: isRightSide ? undefined : (coordinate?.x || 0) + 15,
+            right: isRightSide ? 'calc(100% - ' + ((coordinate?.x || 0) - 15) + 'px)' : undefined,
+            top: (coordinate?.y || 0) - 10,
+            zIndex: 10,
+            pointerEvents: 'none',
+            opacity: 0.95
+          }}
+        >
+          <p className="text-xs font-medium">{`Year: ${data.year === 2027 ? 'Long Run' : data.year}`}</p>
+          <p className="text-xs" style={{ color: data.fill }}>
             {`Rate: ${data.displayRate || data.y}%`}
           </p>
-          {data.label && (
-            <p className="text-xs text-gray-600">{data.label}</p>
-          )}
           {data.participant && !data.count && (
             <p className="text-xs text-gray-500">{data.participant}</p>
           )}
@@ -204,7 +217,7 @@ export const CustomScatterChart: React.FC<CustomScatterChartProps> = ({
         cx={cx} 
         cy={cy} 
         r={6} 
-        strokeWidth={1}
+        strokeWidth={1.5}
         stroke="#fff"
         fill={fill || "#EC4899"} 
         style={{ opacity: 0.9 }}
@@ -241,7 +254,12 @@ export const CustomScatterChart: React.FC<CustomScatterChartProps> = ({
           tickFormatter={yTickFormatter}
           tick={{ fontSize: 12, fill: '#6b7280' }}
         />
-        <Tooltip content={renderTooltip} />
+        <Tooltip 
+          content={renderTooltip} 
+          cursor={false}
+          wrapperStyle={{ zIndex: 100, pointerEvents: 'none' }}
+          allowEscapeViewBox={{ x: true, y: true }}
+        />
         
         {/* Always render all dots but control visibility with opacity */}
         <Scatter 
