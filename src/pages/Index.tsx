@@ -5,8 +5,7 @@ import DashboardCard from '@/components/DashboardCard';
 import SentimentChart from '@/components/SentimentChart';
 import DotPlot from '@/components/DotPlot';
 import { useToast } from "@/components/ui/use-toast";
-import { ArrowUp, ArrowDown, ArrowRight, Eye, EyeOff } from 'lucide-react';
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { ArrowUp, ArrowDown, ArrowRight, Eye, EyeOff, Star } from 'lucide-react';
 import { Toggle } from "@/components/ui/toggle";
 import { cn } from "@/lib/utils";
 
@@ -27,22 +26,26 @@ const sentimentData = [
 
 // Sample data for the fed dot plot
 const existingDots = [
-  { x: 2023, y: 5.25, year: 2023, displayRate: '5.25', fill: '#2563EB', participant: 'Fed Member A' },
-  { x: 2023, y: 5.0, year: 2023, displayRate: '5.00', fill: '#2563EB', participant: 'Fed Member B' },
-  { x: 2023, y: 5.25, year: 2023, displayRate: '5.25', fill: '#2563EB', participant: 'Fed Member C' },
-  { x: 2024, y: 4.5, year: 2024, displayRate: '4.50', fill: '#2563EB', participant: 'Fed Member A' },
-  { x: 2024, y: 4.25, year: 2024, displayRate: '4.25', fill: '#2563EB', participant: 'Fed Member B' },
-  { x: 2024, y: 4.0, year: 2024, displayRate: '4.00', fill: '#2563EB', participant: 'Fed Member C' },
-  { x: 2025, y: 3.5, year: 2025, displayRate: '3.50', fill: '#2563EB', participant: 'Fed Member A' },
-  { x: 2025, y: 3.25, year: 2025, displayRate: '3.25', fill: '#2563EB', participant: 'Fed Member B' },
-  { x: 2025, y: 3.0, year: 2025, displayRate: '3.00', fill: '#2563EB', participant: 'Fed Member C' },
+  { x: 2024, y: 5.25, year: 2024, displayRate: '5.25', fill: '#2563EB', participant: 'Fed Member A' },
+  { x: 2024, y: 5.0, year: 2024, displayRate: '5.00', fill: '#2563EB', participant: 'Fed Member B' },
+  { x: 2024, y: 5.25, year: 2024, displayRate: '5.25', fill: '#2563EB', participant: 'Fed Member C' },
+  { x: 2025, y: 4.5, year: 2025, displayRate: '4.50', fill: '#2563EB', participant: 'Fed Member A' },
+  { x: 2025, y: 4.25, year: 2025, displayRate: '4.25', fill: '#2563EB', participant: 'Fed Member B' },
+  { x: 2025, y: 4.0, year: 2025, displayRate: '4.00', fill: '#2563EB', participant: 'Fed Member C' },
+  { x: 2026, y: 3.5, year: 2026, displayRate: '3.50', fill: '#2563EB', participant: 'Fed Member A' },
+  { x: 2026, y: 3.25, year: 2026, displayRate: '3.25', fill: '#2563EB', participant: 'Fed Member B' },
+  { x: 2026, y: 3.0, year: 2026, displayRate: '3.00', fill: '#2563EB', participant: 'Fed Member C' },
+  { x: 2027, y: 2.5, year: 2027, displayRate: '2.50', fill: '#2563EB', participant: 'Fed Member A' },
+  { x: 2027, y: 2.75, year: 2027, displayRate: '2.75', fill: '#2563EB', participant: 'Fed Member B' },
+  { x: 2027, y: 2.5, year: 2027, displayRate: '2.50', fill: '#2563EB', participant: 'Fed Member C' },
 ];
 
-// Generate aggregated dot plot data
+// Generate aggregated dot plot data - use purple color to distinguish from Fed dots (blue) and user dots (pink)
 const aggregateDots = [
-  { x: 2023, y: 5.25, year: 2023, displayRate: '5.25', fill: 'rgba(37, 99, 235, 0.8)', count: 2, label: '2023 Median: 5.25%' },
-  { x: 2024, y: 4.25, year: 2024, displayRate: '4.25', fill: 'rgba(37, 99, 235, 0.8)', count: 3, label: '2024 Median: 4.25%' },
-  { x: 2025, y: 3.25, year: 2025, displayRate: '3.25', fill: 'rgba(37, 99, 235, 0.8)', count: 3, label: '2025 Median: 3.25%' },
+  { x: 2024, y: 5.25, year: 2024, displayRate: '5.25', fill: '#9333EA', count: 2, label: '2024 Median: 5.25%' },
+  { x: 2025, y: 4.25, year: 2025, displayRate: '4.25', fill: '#9333EA', count: 3, label: '2025 Median: 4.25%' },
+  { x: 2026, y: 3.25, year: 2026, displayRate: '3.25', fill: '#9333EA', count: 3, label: '2026 Median: 3.25%' },
+  { x: 2027, y: 2.5, year: 2027, displayRate: '2.50', fill: '#9333EA', count: 2, label: 'Long Run Median: 2.50%' },
 ];
 
 const Dashboard = () => {
@@ -99,60 +102,42 @@ const Dashboard = () => {
 
   // Determine which dots to display
   const dotsToDisplay = () => {
-    if (!showFedDots && !showAggregateDots) {
-      return [];
+    const dots = [];
+    
+    if (showFedDots) {
+      dots.push(...existingDots);
     }
     
-    if (showFedDots && !showAggregateDots) {
-      return existingDots;
+    if (showAggregateDots) {
+      dots.push(...aggregateDots);
     }
     
-    if (!showFedDots && showAggregateDots) {
-      return aggregateDots;
-    }
-    
-    // Both are visible
-    return [...existingDots, ...aggregateDots];
+    return dots;
+  };
+  
+  // Handle card selection for rate type
+  const handleCardSelect = (rateType: string) => {
+    setSelectedRate(rateType);
   };
 
   return (
     <Layout>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <h1 className="text-2xl font-bold gradient-heading">Fed Rate Dashboard</h1>
         <p className="text-gray-600">Monitor Fed policy sentiment and make your own rate forecasts</p>
-      </div>
-      
-      {/* Rate Selection Toggle */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Select rate outlook:</label>
-        <ToggleGroup 
-          type="single" 
-          value={selectedRate} 
-          onValueChange={(value) => {
-            if (value) setSelectedRate(value);
-          }}
-          className="justify-start"
-        >
-          <ToggleGroupItem value="hikes" className="bg-red-100 data-[state=on]:bg-red-200 data-[state=on]:text-red-800">
-            Hike
-          </ToggleGroupItem>
-          <ToggleGroupItem value="holds" className="bg-amber-100 data-[state=on]:bg-amber-200 data-[state=on]:text-amber-800">
-            Hold
-          </ToggleGroupItem>
-          <ToggleGroupItem value="cuts" className="bg-green-100 data-[state=on]:bg-green-200 data-[state=on]:text-green-800">
-            Cut
-          </ToggleGroupItem>
-        </ToggleGroup>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <DashboardCard 
           title="Hike" 
           className={cn(
-            "md:col-span-1 transition-all duration-300",
-            selectedRate === "hikes" ? "ring-2 ring-red-400 shadow-lg" : ""
+            "md:col-span-1 transition-all duration-300 border-red-100/50",
+            selectedRate === "hikes" ? "ring-2 ring-red-400 shadow-lg bg-gradient-to-br from-white to-red-50" : "bg-white hover:bg-red-50/30"
           )}
           titleClassName="text-red-700"
+          isSelectable={true}
+          isSelected={selectedRate === "hikes"}
+          onClick={() => handleCardSelect("hikes")}
         >
           <div className="flex items-center justify-between">
             <div>
@@ -168,10 +153,13 @@ const Dashboard = () => {
         <DashboardCard 
           title="Hold" 
           className={cn(
-            "md:col-span-1 transition-all duration-300",
-            selectedRate === "holds" ? "ring-2 ring-amber-400 shadow-lg" : ""
+            "md:col-span-1 transition-all duration-300 border-amber-100/50",
+            selectedRate === "holds" ? "ring-2 ring-amber-400 shadow-lg bg-gradient-to-br from-white to-amber-50" : "bg-white hover:bg-amber-50/30"
           )}
           titleClassName="text-amber-700"
+          isSelectable={true}
+          isSelected={selectedRate === "holds"}
+          onClick={() => handleCardSelect("holds")}
         >
           <div className="flex items-center justify-between">
             <div>
@@ -187,10 +175,13 @@ const Dashboard = () => {
         <DashboardCard 
           title="Cut" 
           className={cn(
-            "md:col-span-1 transition-all duration-300",
-            selectedRate === "cuts" ? "ring-2 ring-green-400 shadow-lg" : ""
+            "md:col-span-1 transition-all duration-300 border-green-100/50",
+            selectedRate === "cuts" ? "ring-2 ring-green-400 shadow-lg bg-gradient-to-br from-white to-green-50" : "bg-white hover:bg-green-50/30"
           )}
           titleClassName="text-green-700"
+          isSelectable={true}
+          isSelected={selectedRate === "cuts"}
+          onClick={() => handleCardSelect("cuts")}
         >
           <div className="flex items-center justify-between">
             <div>
@@ -207,14 +198,14 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <DashboardCard 
           title="Historical Rate Sentiment" 
-          className="lg:col-span-1 bg-gradient-to-br from-white to-gray-50"
+          className="lg:col-span-1 bg-gradient-to-br from-white via-white to-gray-50 border-blue-100/50"
         >
           <SentimentChart historicalData={sentimentData} />
         </DashboardCard>
         
         <DashboardCard 
           title="Fed Dot Plot & Your Forecast" 
-          className="lg:col-span-1 bg-gradient-to-br from-white to-blue-50"
+          className="lg:col-span-1 bg-gradient-to-br from-white via-white to-blue-50 border-blue-100/50"
           action={
             <div className="flex items-center space-x-2">
               <div className="flex items-center space-x-1">
@@ -235,7 +226,7 @@ const Dashboard = () => {
                   size="sm"
                   className="data-[state=on]:bg-purple-200"
                 >
-                  {showAggregateDots ? <Eye size={14} className="text-purple-700" /> : <EyeOff size={14} />}
+                  {showAggregateDots ? <Star size={14} className="text-purple-700" /> : <EyeOff size={14} />}
                 </Toggle>
                 <span className="text-xs text-gray-500">Aggregate</span>
               </div>

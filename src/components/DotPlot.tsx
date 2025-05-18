@@ -3,8 +3,14 @@ import React, { useState } from 'react';
 import { CustomScatterChart } from './ChartComponents';
 import { Button } from '@/components/ui/button';
 
-// Generate year ticks for x-axis (2023, 2024, 2025)
-const yearTicks = [2023, 2024, 2025, 2026];
+// Generate year ticks for x-axis (2024, 2025, 2026, Long Run)
+const yearTicks = [2024, 2025, 2026, 2027]; // We'll display 2027 as "Long Run"
+const yearTickLabels = {
+  2024: "2024",
+  2025: "2025", 
+  2026: "2026",
+  2027: "Long Run"
+};
 
 // Generate rate ticks for y-axis (0% to 6% in 0.25% steps)
 const generateRateTicks = () => {
@@ -112,7 +118,7 @@ const DotPlot: React.FC<DotPlotProps> = ({ existingDots = [], onSave, readOnly =
           xTicks={yearTicks}
           yTicks={[0, 1, 2, 3, 4, 5, 6]}
           onClick={handleChartClick}
-          xTickFormatter={(value: number) => value.toString()}
+          xTickFormatter={(value: number) => yearTickLabels[value as keyof typeof yearTickLabels] || value.toString()}
           yTickFormatter={(value: number) => `${value}%`}
         />
       </div>

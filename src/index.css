@@ -63,11 +63,39 @@
   .gradient-heading {
     @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent;
   }
+  
+  .card-gradient-primary {
+    @apply bg-gradient-to-br from-white to-blue-50 border border-blue-100/30;
+  }
+  
+  .card-gradient-secondary {
+    @apply bg-gradient-to-br from-white to-purple-50 border border-purple-100/30;
+  }
+  
+  .card-gradient-success {
+    @apply bg-gradient-to-br from-white to-green-50 border border-green-100/30;
+  }
+  
+  .card-gradient-warning {
+    @apply bg-gradient-to-br from-white to-amber-50 border border-amber-100/30;
+  }
+  
+  .card-gradient-danger {
+    @apply bg-gradient-to-br from-white to-red-50 border border-red-100/30;
+  }
 }
 
 @layer utilities {
   .dot-grid {
     background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
     background-size: 20px 20px;
+  }
+  
+  .hover-scale {
+    @apply transition-transform hover:scale-[1.02];
+  }
+  
+  .hover-lift {
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
   }
 }
