@@ -3,14 +3,14 @@ import React from 'react';
 import Layout from '@/components/Layout';
 import DashboardCard from '@/components/DashboardCard';
 import { Progress } from "@/components/ui/progress";
-import { CustomAreaChart } from './components/ChartComponents';
+import { CustomAreaChart } from '@/components/ChartComponents';
 
 // Sample user data
 const userData = {
   name: 'User Demo',
   rank: 'Novice',
   totalScore: 840,
-  rank: 6,
+  rankNumber: 6,
   accuracy: 68,
   gamesPlayed: 42,
   winStreak: 3,
