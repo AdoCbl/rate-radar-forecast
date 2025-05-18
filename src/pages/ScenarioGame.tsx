@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import DashboardCard from '@/components/DashboardCard';
 import { Button } from '@/components/ui/button';
 import { CustomAreaChart } from '@/components/ChartComponents';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { scenarios, getScenarios, submitPrediction } from '@/data/scenarioData';
 
 const ScenarioGame = () => {
