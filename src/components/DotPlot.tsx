@@ -31,6 +31,8 @@ const DotPlot: React.FC<DotPlotProps> = ({
   const [showConfetti, setShowConfetti] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const [rewardText, setRewardText] = useState('');
+  const [showReward, setShowReward] = useState(false);
   
   useEffect(() => {
     if (containerRef.current) {
@@ -39,19 +41,61 @@ const DotPlot: React.FC<DotPlotProps> = ({
         height: window.innerHeight
       });
     }
+
+    const handleResize = () => {
+      if (containerRef.current) {
+        setDimensions({
+          width: containerRef.current.offsetWidth || 500,
+          height: window.innerHeight
+        });
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, [containerRef.current]);
   
-  // Handle dot placement
+  // Handle dot placement with enhanced sensitivity
   const handleChartClick = (e: any) => {
     if (readOnly) return;
     
-    // Ignore clicks outside the chart area
-    if (!e || !e.xValue || e.xValue < yearTicks[0] || e.xValue > yearTicks[yearTicks.length-1]) return;
+    // If we don't have exact coordinates, skip
+    if (!e) return;
     
-    // Find closest year and rate tick
-    const year = Math.round(e.xValue);
-    const rateIndex = rateTicks.findIndex(r => r >= e.yValue) - 1;
-    const rate = rateTicks[rateIndex >= 0 ? rateIndex : 0];
+    // Get the click position values
+    const clickX = e.xValue || 0;
+    const clickY = e.yValue || 0;
+    
+    // Find the closest year tick (with more tolerance)
+    let closestYear = yearTicks[0];
+    let minYearDist = Math.abs(clickX - yearTicks[0]);
+    
+    for (const year of yearTicks) {
+      const dist = Math.abs(clickX - year);
+      if (dist < minYearDist) {
+        minYearDist = dist;
+        closestYear = year;
+      }
+    }
+    
+    // Only proceed if within reasonable distance of a valid year tick
+    if (minYearDist > 0.5) return;
+    
+    // Find closest rate tick (with more tolerance)
+    let closestRateIndex = 0;
+    let minRateDist = Math.abs(clickY - rateTicks[0]);
+    
+    for (let i = 0; i < rateTicks.length; i++) {
+      const dist = Math.abs(clickY - rateTicks[i]);
+      if (dist < minRateDist) {
+        minRateDist = dist;
+        closestRateIndex = i;
+      }
+    }
+    
+    // Snap to the closest valid position
+    const year = closestYear;
+    const rate = rateTicks[closestRateIndex];
     
     // Check if we already have a dot for this year
     const existingDotIndex = userDots.findIndex(dot => dot.year === year);
@@ -63,10 +107,11 @@ const DotPlot: React.FC<DotPlotProps> = ({
         ...updatedDots[existingDotIndex],
         y: rate,
         displayRate: rate.toFixed(2),
+        animated: true,
       };
       setUserDots(updatedDots);
     } else {
-      // Add new dot
+      // Add new dot with animation flag
       const newDot = {
         x: year,
         y: rate,
@@ -88,25 +133,48 @@ const DotPlot: React.FC<DotPlotProps> = ({
     }
   };
   
+  // Generate a random encouragement message
+  const getRewardMessage = (dotCount: number) => {
+    const messages = [
+      "Great job! Your predictions are now on the chart!",
+      "Excellent forecast submitted!",
+      `${dotCount} dots plotted successfully!`,
+      "Your insights have been recorded!",
+      "Forecast received! Keep up the good work!",
+    ];
+    
+    return messages[Math.floor(Math.random() * messages.length)];
+  };
+  
   const handleSubmit = () => {
     if (onSave) {
-      onSave(userDots.map(dot => ({
+      const dotsWithTags = userDots.map(dot => ({
         ...dot,
         tags: selectedTags,
-      })));
+      }));
+      
+      onSave(dotsWithTags);
       
       // Show celebration effects
       setShowConfetti(true);
+      
+      // Display random reward message
+      const message = getRewardMessage(userDots.length);
+      setRewardText(message);
+      setShowReward(true);
       
       // Show reward toast
       toast({
         title: "Forecast Submitted!",
         description: `Your ${userDots.length} predictions have been recorded.`,
-        className: "bg-gradient-to-r from-blue-50 to-green-50 border-green-200"
+        className: "bg-gradient-to-r from-blue-50 to-green-50 border-green-200 animate-enter"
       });
       
-      // Clear confetti after 4 seconds
-      setTimeout(() => setShowConfetti(false), 4000);
+      // Clear confetti and reward message after delay
+      setTimeout(() => {
+        setShowConfetti(false);
+        setShowReward(false);
+      }, 4000);
     }
   };
   
@@ -139,7 +207,19 @@ const DotPlot: React.FC<DotPlotProps> = ({
         />
       )}
       
-      <div className="h-[260px] transition-all duration-500">
+      {showReward && (
+        <div className="absolute top-1/3 left-0 right-0 text-center z-10 pointer-events-none animate-fade-in">
+          <div className="inline-block bg-gradient-to-r from-primary to-secondary text-white px-4 py-2 rounded-lg shadow-lg transform animate-bounce">
+            {rewardText}
+          </div>
+        </div>
+      )}
+      
+      <div className="h-[260px] transition-all duration-500 relative">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-30">
+          <div className="w-full h-full dot-grid"></div>
+        </div>
+        
         <CustomScatterChart
           fedDots={fedDots}
           aggregateDots={aggregateDots}
@@ -159,16 +239,16 @@ const DotPlot: React.FC<DotPlotProps> = ({
       {!readOnly && (
         <div className="mt-1.5">
           <div className="flex flex-wrap justify-between items-center">
-            <div className="flex flex-wrap gap-1 flex-1 max-h-16 overflow-y-auto pb-1">
+            <div className="flex flex-wrap gap-1.5 flex-1 max-h-16 overflow-y-auto pb-1">
               {reasoningTags.map(tag => (
                 <button
                   key={tag}
                   onClick={() => handleTagSelection(tag)}
-                  className={`px-2 py-0.5 text-xs rounded-full transition-all duration-300 ${
+                  className={`px-2.5 py-1 text-xs rounded-full transition-all duration-300 ${
                     selectedTags.includes(tag)
                       ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-sm transform scale-105'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105'
-                  }`}
+                  } hover-lift`}
                 >
                   {tag}
                 </button>
@@ -179,21 +259,31 @@ const DotPlot: React.FC<DotPlotProps> = ({
               <Button
                 variant="outline"
                 onClick={clearDots}
-                className="text-xs h-7 px-2 transition-all duration-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200"
+                className="text-xs h-8 px-3 transition-all duration-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 shine-effect"
               >
                 Clear
               </Button>
-              <Button
-                onClick={handleSubmit}
-                className={`text-xs h-7 px-3 bg-gradient-to-r from-primary to-secondary text-white 
-                  ${userDots.length > 0 ? 'hover:opacity-90 hover:scale-105' : 'opacity-70'} 
-                  transition-all duration-300 shadow-sm hover:shadow`}
-                disabled={userDots.length === 0}
-              >
-                Submit
-              </Button>
+              
+              <div className="relative group">
+                <div className={`absolute -inset-0.5 bg-gradient-to-r from-primary to-secondary rounded-md blur opacity-30 group-hover:opacity-60 transition duration-500 ${userDots.length === 0 ? 'opacity-10' : ''}`}></div>
+                <Button
+                  onClick={handleSubmit}
+                  className={`relative text-xs h-8 px-3 bg-gradient-to-r from-primary to-secondary text-white 
+                    ${userDots.length > 0 ? 'hover:opacity-90 hover:scale-105' : 'opacity-70'} 
+                    transition-all duration-300 shadow-sm hover:shadow`}
+                  disabled={userDots.length === 0}
+                >
+                  Submit
+                </Button>
+              </div>
             </div>
           </div>
+        </div>
+      )}
+      
+      {userDots.length > 0 && !readOnly && (
+        <div className="mt-2 text-xs text-gray-500 animate-fade-in">
+          <p>Click on the chart to place or move dots. {userDots.length} dot{userDots.length !== 1 ? 's' : ''} placed.</p>
         </div>
       )}
     </div>
