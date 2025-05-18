@@ -4,7 +4,7 @@ import Layout from '@/components/Layout';
 import DashboardCard from '@/components/DashboardCard';
 import SentimentChart from '@/components/SentimentChart';
 import DotPlot from '@/components/DotPlot';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Star, Eye, EyeOff } from 'lucide-react';
 import { Toggle } from "@/components/ui/toggle";
 import { cn } from "@/lib/utils";
@@ -68,16 +68,16 @@ const Dashboard = () => {
 
   return (
     <Layout>
-      <div className="mb-6">
+      <div className="mb-4">
         <h1 className="text-2xl font-bold gradient-heading">Fed Rate Dashboard</h1>
         <p className="text-gray-600">Monitor Fed policy sentiment and make your own rate forecasts</p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-3 gap-3 mb-4">
         <DashboardCard 
           title="Hike" 
           className={cn(
-            "md:col-span-1 transition-all duration-500 border-red-100/50",
+            "col-span-1 transition-all duration-500 border-red-100/50",
             selectedRate === "hikes" 
               ? "ring-2 ring-red-400 shadow-lg bg-gradient-to-br from-white to-red-50" 
               : "bg-white hover:bg-red-50/30"
@@ -88,18 +88,16 @@ const Dashboard = () => {
           onClick={() => handleCardSelect("hikes")}
           hoverEffect="glow"
         >
-          <div className="flex items-center justify-between">
-            <div className="text-center w-full">
-              <p className="text-3xl font-bold text-red-500 animate-pulse">{currentSentiment.hikes}%</p>
-              <p className="text-sm text-gray-500 mt-1">Expecting rate hikes</p>
-            </div>
+          <div className="text-center">
+            <p className="text-3xl font-bold text-red-500 animate-pulse">{currentSentiment.hikes}%</p>
+            <p className="text-sm text-gray-500 mt-1">Rate hikes</p>
           </div>
         </DashboardCard>
         
         <DashboardCard 
           title="Hold" 
           className={cn(
-            "md:col-span-1 transition-all duration-500 border-amber-100/50",
+            "col-span-1 transition-all duration-500 border-amber-100/50",
             selectedRate === "holds" 
               ? "ring-2 ring-amber-400 shadow-lg bg-gradient-to-br from-white to-amber-50" 
               : "bg-white hover:bg-amber-50/30"
@@ -110,18 +108,16 @@ const Dashboard = () => {
           onClick={() => handleCardSelect("holds")}
           hoverEffect="glow"
         >
-          <div className="flex items-center justify-between">
-            <div className="text-center w-full">
-              <p className="text-3xl font-bold text-amber-500">{currentSentiment.holds}%</p>
-              <p className="text-sm text-gray-500 mt-1">Expecting rate holds</p>
-            </div>
+          <div className="text-center">
+            <p className="text-3xl font-bold text-amber-500">{currentSentiment.holds}%</p>
+            <p className="text-sm text-gray-500 mt-1">Rate holds</p>
           </div>
         </DashboardCard>
         
         <DashboardCard 
           title="Cut" 
           className={cn(
-            "md:col-span-1 transition-all duration-500 border-green-100/50",
+            "col-span-1 transition-all duration-500 border-green-100/50",
             selectedRate === "cuts" 
               ? "ring-2 ring-green-400 shadow-lg bg-gradient-to-br from-white to-green-50" 
               : "bg-white hover:bg-green-50/30"
@@ -132,21 +128,21 @@ const Dashboard = () => {
           onClick={() => handleCardSelect("cuts")}
           hoverEffect="glow"
         >
-          <div className="flex items-center justify-between">
-            <div className="text-center w-full">
-              <p className="text-3xl font-bold text-green-500">{currentSentiment.cuts}%</p>
-              <p className="text-sm text-gray-500 mt-1">Expecting rate cuts</p>
-            </div>
+          <div className="text-center">
+            <p className="text-3xl font-bold text-green-500">{currentSentiment.cuts}%</p>
+            <p className="text-sm text-gray-500 mt-1">Rate cuts</p>
           </div>
         </DashboardCard>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <DashboardCard 
           title="Historical Rate Sentiment" 
           className="lg:col-span-1 bg-gradient-to-br from-white via-white to-gray-50 border-blue-100/50 hover-lift"
         >
-          <SentimentChart historicalData={sentimentData} />
+          <div className="h-64">
+            <SentimentChart historicalData={sentimentData} />
+          </div>
         </DashboardCard>
         
         <DashboardCard 
@@ -163,7 +159,7 @@ const Dashboard = () => {
                 >
                   {showFedDots ? <Eye size={14} className="text-blue-700" /> : <EyeOff size={14} />}
                 </Toggle>
-                <span className="text-xs text-gray-500">Fed Dots</span>
+                <span className="text-xs text-gray-500">Fed</span>
               </div>
               <div className="flex items-center space-x-1">
                 <Toggle 
@@ -174,7 +170,7 @@ const Dashboard = () => {
                 >
                   {showAggregateDots ? <Star size={14} className="text-purple-700" /> : <EyeOff size={14} />}
                 </Toggle>
-                <span className="text-xs text-gray-500">Aggregate</span>
+                <span className="text-xs text-gray-500">Agg</span>
               </div>
             </div>
           }

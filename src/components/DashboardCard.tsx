@@ -44,11 +44,11 @@ const DashboardCard = ({
         ${className}`}
       onClick={isSelectable ? onClick : undefined}
     >
-      <CardHeader className="flex flex-row items-center justify-between p-4 pb-2">
-        <CardTitle className={`text-lg font-medium ${titleClassName}`}>{title}</CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between p-3 pb-2">
+        <CardTitle className={`text-sm font-medium ${titleClassName}`}>{title}</CardTitle>
         {action && <div>{action}</div>}
       </CardHeader>
-      <CardContent className="p-4 pt-2">{children}</CardContent>
+      <CardContent className="p-3 pt-1">{children}</CardContent>
     </Card>
   );
 };

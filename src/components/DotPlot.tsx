@@ -100,7 +100,7 @@ const DotPlot: React.FC<DotPlotProps> = ({
 
   return (
     <div>
-      <div className="h-[350px] transition-all duration-500">
+      <div className="h-[280px] transition-all duration-500">
         <CustomScatterChart
           fedDots={fedDots}
           aggregateDots={aggregateDots}
@@ -119,40 +119,41 @@ const DotPlot: React.FC<DotPlotProps> = ({
       
       {!readOnly && (
         <>
-          <div className="my-4 animate-fade-in">
-            <p className="text-sm font-medium text-gray-700 mb-2">Select reasoning (optional):</p>
-            <div className="flex flex-wrap gap-2">
-              {reasoningTags.map(tag => (
-                <button
-                  key={tag}
-                  onClick={() => handleTagSelection(tag)}
-                  className={`px-3 py-1 text-xs rounded-full transition-all duration-300 ${
-                    selectedTags.includes(tag)
-                      ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-sm transform scale-105'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105'
-                  }`}
+          <div className="mt-2">
+            <div className="flex flex-wrap justify-between items-center">
+              <div className="flex flex-wrap gap-1.5 flex-1">
+                {reasoningTags.map(tag => (
+                  <button
+                    key={tag}
+                    onClick={() => handleTagSelection(tag)}
+                    className={`px-2 py-0.5 text-xs rounded-full transition-all duration-300 ${
+                      selectedTags.includes(tag)
+                        ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-sm transform scale-105'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105'
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+              
+              <div className="flex space-x-2 mt-2 sm:mt-0">
+                <Button
+                  variant="outline"
+                  onClick={clearDots}
+                  className="text-xs h-8 px-2 transition-all duration-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200"
                 >
-                  {tag}
-                </button>
-              ))}
+                  Clear
+                </Button>
+                <Button
+                  onClick={handleSave}
+                  className="text-xs h-8 px-3 bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-all duration-300 shadow-sm hover:shadow"
+                  disabled={userDots.length === 0}
+                >
+                  Save
+                </Button>
+              </div>
             </div>
-          </div>
-          
-          <div className="mt-4 flex justify-end space-x-3">
-            <Button
-              variant="outline"
-              onClick={clearDots}
-              className="text-sm transition-all duration-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200"
-            >
-              Clear
-            </Button>
-            <Button
-              onClick={handleSave}
-              className="text-sm bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-all duration-300 shadow-sm hover:shadow"
-              disabled={userDots.length === 0}
-            >
-              Save Forecast
-            </Button>
           </div>
         </>
       )}

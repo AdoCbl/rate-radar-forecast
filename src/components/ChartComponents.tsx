@@ -164,36 +164,51 @@ export const CustomScatterChart: React.FC<CustomScatterChartProps> = ({
     return null;
   };
   
-  // Define dot shape renderer with fixed sizes for different dot types
-  const renderDot = (props: any, type: 'fed' | 'aggregate' | 'user') => {
+  // Define dot shapes with consistent fixed sizes that don't change
+  const renderFedDot = (props: any) => {
     const { cx, cy, fill } = props;
-    
-    // Fixed sizes by dot type
-    const sizeMap = {
-      fed: 5,
-      aggregate: 8,
-      user: 6
-    };
-    
-    const opacityMap = {
-      fed: 0.7,
-      aggregate: 0.85,
-      user: 0.9
-    };
-    
-    const size = sizeMap[type];
-    const opacity = opacityMap[type];
-
     return (
       <circle 
         cx={cx} 
         cy={cy} 
-        r={size} 
+        r={5} 
         strokeWidth={1}
         stroke="#fff"
         fill={fill || "#2563EB"} 
+        style={{ opacity: showFedDots ? 0.7 : 0 }}
+        className="transition-opacity duration-300"
+      />
+    );
+  };
+  
+  const renderAggDot = (props: any) => {
+    const { cx, cy, fill } = props;
+    return (
+      <circle 
+        cx={cx} 
+        cy={cy} 
+        r={8} 
+        strokeWidth={1}
+        stroke="#fff"
+        fill={fill || "#8B5CF6"} 
+        style={{ opacity: showAggregateDots ? 0.85 : 0 }}
+        className="transition-opacity duration-300"
+      />
+    );
+  };
+  
+  const renderUserDot = (props: any) => {
+    const { cx, cy, fill } = props;
+    return (
+      <circle 
+        cx={cx} 
+        cy={cy} 
+        r={6} 
+        strokeWidth={1}
+        stroke="#fff"
+        fill={fill || "#EC4899"} 
+        style={{ opacity: 0.9 }}
         className="transition-all duration-300"
-        style={{ opacity }}
       />
     );
   };
@@ -228,32 +243,24 @@ export const CustomScatterChart: React.FC<CustomScatterChartProps> = ({
         />
         <Tooltip content={renderTooltip} />
         
-        {/* Fed Dots */}
-        {showFedDots && fedDots.length > 0 && (
-          <Scatter 
-            name="Fed Projections" 
-            data={fedDots} 
-            shape={(props) => renderDot(props, 'fed')}
-          />
-        )}
+        {/* Always render all dots but control visibility with opacity */}
+        <Scatter 
+          name="Fed Projections" 
+          data={fedDots} 
+          shape={renderFedDot}
+        />
         
-        {/* Aggregate Dots */}
-        {showAggregateDots && aggregateDots.length > 0 && (
-          <Scatter 
-            name="Aggregate" 
-            data={aggregateDots} 
-            shape={(props) => renderDot(props, 'aggregate')}
-          />
-        )}
+        <Scatter 
+          name="Aggregate" 
+          data={aggregateDots} 
+          shape={renderAggDot}
+        />
         
-        {/* User Dots */}
-        {userDots.length > 0 && (
-          <Scatter 
-            name="Your Forecast" 
-            data={userDots} 
-            shape={(props) => renderDot(props, 'user')}
-          />
-        )}
+        <Scatter 
+          name="Your Forecast" 
+          data={userDots} 
+          shape={renderUserDot}
+        />
       </ScatterChart>
     </ResponsiveContainer>
   );
