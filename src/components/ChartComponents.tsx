@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   ResponsiveContainer, 
@@ -109,35 +108,103 @@ export const CustomBarChart: React.FC<CustomBarChartProps> = ({
   );
 };
 
-export const CustomScatterChart: React.FC<any> = ({ 
-  data, 
-  xDomain, 
-  yDomain, 
+interface CustomScatterChartProps {
+  fedDots?: any[];
+  aggregateDots?: any[];
+  userDots?: any[];
+  showFedDots?: boolean;
+  showAggregateDots?: boolean;
+  xDomain?: [number, number]; 
+  yDomain?: [number, number];
+  height?: number; 
+  onClick?: (e: any) => void;
+  xTicks?: number[];
+  yTicks?: number[];
+  xTickFormatter?: (value: number) => string;
+  yTickFormatter?: (value: number) => string;
+}
+
+export const CustomScatterChart: React.FC<CustomScatterChartProps> = ({ 
+  fedDots = [], 
+  aggregateDots = [], 
+  userDots = [],
+  showFedDots = true,
+  showAggregateDots = true,
+  xDomain = [2023.5, 2027.5], 
+  yDomain = [0, 6.25], 
   height = 300, 
   onClick,
-  xTicks,
-  yTicks,
-  xTickFormatter,
-  yTickFormatter
+  xTicks = [2024, 2025, 2026, 2027],
+  yTicks = [0, 1, 2, 3, 4, 5, 6],
+  xTickFormatter = (value: number) => value.toString(),
+  yTickFormatter = (value: number) => `${value}%`
 }) => {
-  // Group dots by their year and assign sizes based on aggregate count
-  const processedData = data.map(dot => {
-    if (dot.count) {
-      return {
-        ...dot,
-        z: dot.count * 30, // Size based on count for aggregate dots
-      };
+  // Custom tooltip content renderer
+  const renderTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="bg-white p-3 border border-gray-200 shadow-sm rounded-lg animate-fade-in">
+          <p className="text-sm font-medium">{`Year: ${data.year === 2027 ? 'Long Run' : data.year}`}</p>
+          <p className="text-sm" style={{ color: data.fill }}>
+            {`Rate: ${data.displayRate || data.y}%`}
+          </p>
+          {data.label && (
+            <p className="text-xs text-gray-600">{data.label}</p>
+          )}
+          {data.participant && !data.count && (
+            <p className="text-xs text-gray-500">{data.participant}</p>
+          )}
+          {data.count && (
+            <p className="text-xs text-gray-500">{`Votes: ${data.count}`}</p>
+          )}
+        </div>
+      );
     }
+    return null;
+  };
+  
+  // Define dot shape renderer with fixed sizes for different dot types
+  const renderDot = (props: any, type: 'fed' | 'aggregate' | 'user') => {
+    const { cx, cy, fill } = props;
     
-    return {
-      ...dot,
-      z: dot.animated ? 100 : 80  // Normal dot size
+    // Fixed sizes by dot type
+    const sizeMap = {
+      fed: 5,
+      aggregate: 8,
+      user: 6
     };
-  });
+    
+    const opacityMap = {
+      fed: 0.7,
+      aggregate: 0.85,
+      user: 0.9
+    };
+    
+    const size = sizeMap[type];
+    const opacity = opacityMap[type];
+
+    return (
+      <circle 
+        cx={cx} 
+        cy={cy} 
+        r={size} 
+        strokeWidth={1}
+        stroke="#fff"
+        fill={fill || "#2563EB"} 
+        className="transition-all duration-300"
+        style={{ opacity }}
+      />
+    );
+  };
   
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }} onClick={onClick} className="animate-fade-in">
+      <ScatterChart 
+        margin={{ top: 20, right: 20, bottom: 20, left: 20 }} 
+        onClick={onClick} 
+        className="animate-fade-in"
+      >
         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
         <XAxis 
           type="number" 
@@ -159,59 +226,34 @@ export const CustomScatterChart: React.FC<any> = ({
           tickFormatter={yTickFormatter}
           tick={{ fontSize: 12, fill: '#6b7280' }}
         />
-        <ZAxis 
-          type="number" 
-          dataKey="z" 
-          range={[60, 120]} 
-        />
-        <Tooltip 
-          cursor={{ strokeDasharray: '3 3' }} 
-          content={({ active, payload }) => {
-            if (active && payload && payload.length) {
-              const data = payload[0].payload;
-              return (
-                <div className="bg-white p-3 border border-gray-200 shadow-sm rounded-lg animate-fade-in">
-                  <p className="text-sm font-medium">{`Year: ${data.year || data.x}`}</p>
-                  <p className="text-sm" style={{ color: data.fill }}>
-                    {`Rate: ${data.displayRate || data.y}%`}
-                  </p>
-                  {data.label && (
-                    <p className="text-xs text-gray-600">{data.label}</p>
-                  )}
-                  {data.participant && !data.count && (
-                    <p className="text-xs text-gray-500">{data.participant}</p>
-                  )}
-                  {data.count && (
-                    <p className="text-xs text-gray-500">{`Count: ${data.count}`}</p>
-                  )}
-                </div>
-              );
-            }
-            return null;
-          }}
-        />
-        <Scatter 
-          data={processedData} 
-          fill="#2563EB" 
-          shape={(props) => {
-            const { cx, cy, fill, z } = props;
-            // Adjust size based on z value (for aggregated dots)
-            const size = Math.max((z || 80) / 10, 6);
-            
-            return (
-              <circle 
-                cx={cx} 
-                cy={cy} 
-                r={size} 
-                strokeWidth={1}
-                stroke="#fff"
-                fill={fill || "#2563EB"} 
-                className="transition-all duration-300"
-                style={{ opacity: z > 90 ? 0.9 : 0.7 }}
-              />
-            );
-          }}
-        />
+        <Tooltip content={renderTooltip} />
+        
+        {/* Fed Dots */}
+        {showFedDots && fedDots.length > 0 && (
+          <Scatter 
+            name="Fed Projections" 
+            data={fedDots} 
+            shape={(props) => renderDot(props, 'fed')}
+          />
+        )}
+        
+        {/* Aggregate Dots */}
+        {showAggregateDots && aggregateDots.length > 0 && (
+          <Scatter 
+            name="Aggregate" 
+            data={aggregateDots} 
+            shape={(props) => renderDot(props, 'aggregate')}
+          />
+        )}
+        
+        {/* User Dots */}
+        {userDots.length > 0 && (
+          <Scatter 
+            name="Your Forecast" 
+            data={userDots} 
+            shape={(props) => renderDot(props, 'user')}
+          />
+        )}
       </ScatterChart>
     </ResponsiveContainer>
   );

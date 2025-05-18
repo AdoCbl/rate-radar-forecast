@@ -11,6 +11,7 @@ interface DashboardCardProps {
   isSelectable?: boolean;
   isSelected?: boolean;
   onClick?: () => void;
+  hoverEffect?: 'scale' | 'lift' | 'glow' | 'none';
 }
 
 const DashboardCard = ({ 
@@ -21,13 +22,24 @@ const DashboardCard = ({
   titleClassName = "",
   isSelectable = false,
   isSelected = false,
-  onClick
+  onClick,
+  hoverEffect = 'scale'
 }: DashboardCardProps) => {
+  // Map for different hover effects
+  const hoverEffects = {
+    scale: 'hover:scale-[1.02]',
+    lift: 'hover:-translate-y-1',
+    glow: 'hover:shadow-lg hover:shadow-primary/10',
+    none: ''
+  };
+
+  const hoverClass = hoverEffects[hoverEffect] || '';
+
   return (
     <Card 
       className={`overflow-hidden shadow-sm border-gray-100 transition-all duration-300 
         ${isSelected ? 'ring-2 ring-primary shadow-lg transform scale-[1.02]' : ''} 
-        ${isSelectable ? 'cursor-pointer hover:shadow-md hover:border-primary/30' : 'hover:shadow-md'} 
+        ${isSelectable ? `cursor-pointer hover:shadow-md hover:border-primary/30 ${hoverClass}` : 'hover:shadow-md'} 
         ${className}`}
       onClick={isSelectable ? onClick : undefined}
     >

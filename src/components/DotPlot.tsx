@@ -2,39 +2,29 @@
 import React, { useState } from 'react';
 import { CustomScatterChart } from './ChartComponents';
 import { Button } from '@/components/ui/button';
-
-// Generate year ticks for x-axis (2024, 2025, 2026, Long Run)
-const yearTicks = [2024, 2025, 2026, 2027]; // We'll display 2027 as "Long Run"
-const yearTickLabels = {
-  2024: "2024",
-  2025: "2025", 
-  2026: "2026",
-  2027: "Long Run"
-};
-
-// Generate rate ticks for y-axis (0% to 6% in 0.25% steps)
-const generateRateTicks = () => {
-  const ticks = [];
-  for (let i = 0; i <= 6; i += 0.25) {
-    ticks.push(parseFloat(i.toFixed(2)));
-  }
-  return ticks;
-};
-
-const rateTicks = generateRateTicks();
+import { yearTicks, yearTickLabels, rateTicks } from '@/data/dotPlotData';
 
 interface DotPlotProps {
-  existingDots?: any[];
+  fedDots?: any[];
+  aggregateDots?: any[];
+  existingUserDots?: any[];
+  showFedDots?: boolean;
+  showAggregateDots?: boolean;
   onSave?: (dots: any[]) => void;
   readOnly?: boolean;
 }
 
-const DotPlot: React.FC<DotPlotProps> = ({ existingDots = [], onSave, readOnly = false }) => {
-  const [userDots, setUserDots] = useState<any[]>([]);
+const DotPlot: React.FC<DotPlotProps> = ({ 
+  fedDots = [], 
+  aggregateDots = [], 
+  existingUserDots = [], 
+  showFedDots = true,
+  showAggregateDots = true,
+  onSave, 
+  readOnly = false 
+}) => {
+  const [userDots, setUserDots] = useState<any[]>(existingUserDots || []);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  
-  // Combine existing dots and user dots for display
-  const allDots = [...existingDots, ...userDots];
   
   // Handle dot placement
   const handleChartClick = (e: any) => {
@@ -112,7 +102,11 @@ const DotPlot: React.FC<DotPlotProps> = ({ existingDots = [], onSave, readOnly =
     <div>
       <div className="h-[350px] transition-all duration-500">
         <CustomScatterChart
-          data={allDots}
+          fedDots={fedDots}
+          aggregateDots={aggregateDots}
+          userDots={userDots}
+          showFedDots={showFedDots}
+          showAggregateDots={showAggregateDots}
           xDomain={[yearTicks[0] - 0.5, yearTicks[yearTicks.length - 1] + 0.5]}
           yDomain={[0, 6.25]}
           xTicks={yearTicks}

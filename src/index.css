@@ -83,6 +83,50 @@
   .card-gradient-danger {
     @apply bg-gradient-to-br from-white to-red-50 border border-red-100/30;
   }
+  
+  /* Enhanced Card Gradients */
+  .card-glass {
+    @apply bg-white/80 backdrop-blur-sm border border-white/30 shadow-xl;
+  }
+  
+  .card-rainbow {
+    @apply relative overflow-hidden;
+  }
+  
+  .card-rainbow::before {
+    content: '';
+    @apply absolute -inset-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-lg blur-sm opacity-20 transition-all duration-500;
+  }
+  
+  .card-rainbow:hover::before {
+    @apply opacity-40 blur-md;
+  }
+  
+  .glow-effect {
+    @apply relative;
+  }
+  
+  .glow-effect::after {
+    content: '';
+    @apply absolute inset-0 rounded-lg bg-gradient-to-r from-primary/20 to-secondary/20 blur-xl opacity-0 transition-opacity duration-500 -z-10;
+  }
+  
+  .glow-effect:hover::after {
+    @apply opacity-100;
+  }
+  
+  .shine-effect {
+    @apply relative overflow-hidden;
+  }
+  
+  .shine-effect::after {
+    content: '';
+    @apply absolute top-0 -left-[100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/20 to-transparent transform skew-x-[-25deg] transition-all duration-1000;
+  }
+  
+  .shine-effect:hover::after {
+    @apply left-[150%] transition-all duration-700;
+  }
 }
 
 @layer utilities {
@@ -97,5 +141,46 @@
   
   .hover-lift {
     @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+  
+  .animated-gradient-text {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 animate-gradient-x;
+  }
+  
+  .animate-float {
+    animation: floating 3s ease-in-out infinite;
+  }
+  
+  .animate-gradient-x {
+    background-size: 200% 200%;
+    animation: gradient-x 3s ease infinite;
+  }
+  
+  @keyframes floating {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
+    100% { transform: translateY(0px); }
+  }
+  
+  @keyframes gradient-x {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.5) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+  
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
   }
 }
