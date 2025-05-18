@@ -11,7 +11,7 @@ interface DashboardCardProps {
   isSelectable?: boolean;
   isSelected?: boolean;
   onClick?: () => void;
-  hoverEffect?: 'scale' | 'lift' | 'glow' | 'none';
+  hoverEffect?: 'scale' | 'lift' | 'glow' | 'shine' | 'none';
 }
 
 const DashboardCard = ({ 
@@ -27,9 +27,10 @@ const DashboardCard = ({
 }: DashboardCardProps) => {
   // Map for different hover effects
   const hoverEffects = {
-    scale: 'hover:scale-[1.02]',
-    lift: 'hover:-translate-y-1',
-    glow: 'hover:shadow-lg hover:shadow-primary/10',
+    scale: 'hover:scale-[1.02] transition-transform duration-300',
+    lift: 'hover:-translate-y-1 transition-transform duration-300',
+    glow: 'hover:shadow-lg hover:shadow-primary/10 transition-shadow duration-300 glow-effect',
+    shine: 'shine-effect transition-all duration-300',
     none: ''
   };
 

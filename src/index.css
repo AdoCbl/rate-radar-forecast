@@ -86,7 +86,7 @@
   
   /* Enhanced Card Gradients */
   .card-glass {
-    @apply bg-white/80 backdrop-blur-sm border border-white/30 shadow-xl;
+    @apply bg-white/90 backdrop-blur-sm border border-white/50 shadow-lg;
   }
   
   .card-rainbow {
@@ -121,7 +121,7 @@
   
   .shine-effect::after {
     content: '';
-    @apply absolute top-0 -left-[100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/20 to-transparent transform skew-x-[-25deg] transition-all duration-1000;
+    @apply absolute top-0 -left-[100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent transform skew-x-[-25deg] transition-all duration-1000;
   }
   
   .shine-effect:hover::after {
