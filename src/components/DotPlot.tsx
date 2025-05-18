@@ -2,6 +2,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CustomScatterChart } from './ChartComponents';
 import { Button } from '@/components/ui/button';
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import { yearTicks, yearTickLabels, rateTicks } from '@/data/dotPlotData';
 import { useToast } from '@/hooks/use-toast';
 import ReactConfetti from 'react-confetti';
@@ -157,35 +159,40 @@ const DotPlot: React.FC<DotPlotProps> = ({
       </div>
       
       {!readOnly && (
-        <div className="mt-1.5">
-          <div className="flex flex-wrap justify-between items-center">
-            <div className="flex flex-wrap gap-1 flex-1 max-h-16 overflow-y-auto pb-1">
-              {reasoningTags.map(tag => (
-                <button
-                  key={tag}
-                  onClick={() => handleTagSelection(tag)}
-                  className={`px-2 py-0.5 text-xs rounded-full transition-all duration-300 ${
-                    selectedTags.includes(tag)
-                      ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-sm transform scale-105'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105'
-                  }`}
-                >
-                  {tag}
-                </button>
-              ))}
+        <div className="mt-5">
+          <Separator className="mb-4" />
+          
+          <div className="flex flex-wrap justify-between items-start">
+            <div className="w-full mb-3">
+              <p className="text-xs text-gray-500 mb-2">Select factors influencing your forecast:</p>
+              <div className="flex flex-wrap gap-2 max-h-20 overflow-y-auto p-2 bg-gray-50 rounded-md">
+                {reasoningTags.map(tag => (
+                  <button
+                    key={tag}
+                    onClick={() => handleTagSelection(tag)}
+                    className={`px-3 py-1 text-xs rounded-full transition-all duration-300 ${
+                      selectedTags.includes(tag)
+                        ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-sm transform scale-105'
+                        : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 hover:scale-105'
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
             </div>
             
-            <div className="flex space-x-2 mt-1.5 sm:mt-0">
+            <div className="flex space-x-3 mt-2 ml-auto">
               <Button
                 variant="outline"
                 onClick={clearDots}
-                className="text-xs h-7 px-2 transition-all duration-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200"
+                className="text-xs h-8 px-3 transition-all duration-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200"
               >
                 Clear
               </Button>
               <Button
                 onClick={handleSubmit}
-                className={`text-xs h-7 px-3 bg-gradient-to-r from-primary to-secondary text-white 
+                className={`text-xs h-8 px-4 bg-gradient-to-r from-primary to-secondary text-white 
                   ${userDots.length > 0 ? 'hover:opacity-90 hover:scale-105' : 'opacity-70'} 
                   transition-all duration-300 shadow-sm hover:shadow`}
                 disabled={userDots.length === 0}
@@ -194,6 +201,24 @@ const DotPlot: React.FC<DotPlotProps> = ({
               </Button>
             </div>
           </div>
+          
+          {selectedTags.length > 0 && (
+            <div className="mt-3">
+              <p className="text-xs text-gray-500 mb-1.5">Selected factors:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {selectedTags.map(tag => (
+                  <Badge 
+                    key={tag} 
+                    variant="secondary" 
+                    className="cursor-pointer bg-gradient-to-r from-blue-100 to-purple-100 text-gray-700 hover:bg-blue-200"
+                    onClick={() => handleTagSelection(tag)}
+                  >
+                    {tag} ✕
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
